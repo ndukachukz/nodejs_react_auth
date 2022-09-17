@@ -1,4 +1,4 @@
-Nodejs React Authentication.
+This is a backend Focused Nodejs React Authentication.
 
 Stores values/users in memory as an array of objects.
 
