@@ -2,10 +2,7 @@ import express, { Application, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { corsOptions } from "./config";
-import { LoginController, RegisterController } from "./controllers";
-import validateReqBody from "./middleware/validateReqBody";
-import { regUserDataSchema } from "./validations/";
-import { AuthRouter } from "./routes";
+import { AuthRouter, UserRouter } from "./routes";
 
 export default (app: Application) => {
   // MiddleWare
@@ -15,6 +12,7 @@ export default (app: Application) => {
   app.use(express.urlencoded({ extended: false }));
 
   app.use("/auth", AuthRouter);
+  app.use("/users", UserRouter);
 
   app.get("/ping", async (req, res): Promise<Response> => {
     return res.send("Hello from server");
