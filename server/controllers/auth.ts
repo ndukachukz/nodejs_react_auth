@@ -1,8 +1,9 @@
 import "dotenv/config";
 import { Request, Response } from "express";
-import { User } from "../types";
 import CryptoJS from "crypto-js";
 import crypto from "crypto";
+import moment from "moment";
+import { User } from "../types";
 import { usersDB } from "../model";
 
 const id = crypto.randomBytes(16).toString("hex");
@@ -36,16 +37,17 @@ export const RegisterController = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { email, password, username } = req.body;
-  const date = Date.now().toString();
+  const { email, password, fullName, ...rest } = req.body;
+  const date = moment.unix(Date.now()).format("DD MM YYYY, h:mm:ss A");
+  console.log({ date });
   // encrypt password
 
   // check if username exists
-  const duplicate = usersDB.users.find(
-    (user: User) => user.username === username
-  );
+  const duplicate = usersDB.users.find((user: User) => user.email === email);
 
   if (duplicate) return res.sendStatus(409);
+
+  let score = 0;
 
   try {
     const encrypted = CryptoJS.AES.encrypt(
@@ -53,18 +55,25 @@ export const RegisterController = async (
       CRYPTOJS_SECRET_KEY
     ).toString();
 
-    const newUser = {
+    const newUser: User = {
       createdAt: date,
       email,
       id,
       password: encrypted,
       updatedAt: date,
-      username,
+      fullName,
+      ...rest,
     };
 
-    usersDB.setUsers([...usersDB.users, newUser]);
-    console.log(usersDB.users);
+    console.log({ rest });
 
+    if (Number(rest.age) > 18) score + 2;
+    if (rest.occupation) score + 2;
+    if (rest.address) score + 2;
+    if (rest.yrsExp) score + 2;
+    if (rest.currentlyEmployed) score + 2;
+
+    usersDB.setUsers([...usersDB.users, { ...newUser, score }]);
     return res.status(201).json({ id: newUser.id });
   } catch (error: any) {
     return res.status(error?.code || 500).json({ message: error?.message });
