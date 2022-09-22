@@ -21,7 +21,7 @@ export const onSubmit =
   async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !fullName || !password) return;
+    if (!email || !password) return;
 
     const myHeaders = new Headers();
 
